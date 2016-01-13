@@ -6,7 +6,6 @@
 #include <string.h>
 #include <sys/mman.h>
 
-
 int
 two(void)
 {
@@ -47,12 +46,12 @@ main()
 
   /* 3 bytes we need to keep from the old address */
   memcpy(&new_contents[5], own_addr + 5, 3);
-		  
+
   printf("new_contents with old: %p\n", *((void **)&new_contents));
 
   void *nearest_page_down = (void *)((uintptr_t)own_addr & ~((1 << 22) - 1));
   printf("nearest page down from own_addr %p: %p\n", own_addr, nearest_page_down);
-		
+
   /* Really this instruction might be on a page boundary. */
   ret = mprotect(nearest_page_down, 4096, PROT_READ|PROT_WRITE|PROT_EXEC);
   if (ret != 0) {
@@ -62,7 +61,7 @@ main()
 
   /* THIS IS DANGEROUS */
   memcpy(own_addr, &new_contents, 8);
-		
+
   /* XXX: create a function which jumps to an arbitrary global address. jump to that function. */
 
   /* XXX: mprotect back */
