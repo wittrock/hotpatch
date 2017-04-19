@@ -87,27 +87,22 @@ main()
 		printf("relative jmp address: %x\n", rel_addr);
 		/* XXX: assert rel_addr has no significant bits other than the lower 31 and the sign bit. */
 
-		/*
-		 * JWW: this is the last thing you touched.  You are
-		 * in the middle of figuring out how to call
-		 * execute_function from the beginning of
-		 * own_function. You need to MOV the address of
-		 * new_function into the register used for the first
-		 * argument of functions on x86 (see calling
-		 * conventions) and then CALL execute_function's
-		 * relative address. It doesn't matter that you're
-		 * going to clobber EAX because EAX is caller-saved.
-		 */
 		uint8_t new_contents[8];
-		/* memcpy(&new_contents[0], &jmp, sizeof(uint8_t)); */
-		/* memcpy(&new_contents[1], &rel_addr, sizeof(uint32_t)); */
-		/* memcpy(&new_contents[0], &call, sizeof(uint8_t)); */
-		/* memcpy(&new_contents[1], &rel_addr, sizeof(uint32_t)); */
+		// TODO: Strategy:
+                // http://www.ragestorm.net/blogs/?p=107
+		// 
+		memcpy(&new_contents[0], &call, sizeof(uint8_t));
+		memcpy(&new_contents[1], &rel_addr, sizeof(uint32_t));
 		printf("new_contents without old: %p\n", *((void **)&new_contents));
 		printf("relative jmp address from new_content: %x\n", *((uint32_t *)&new_contents[1]));
 
 		/* 3 bytes we need to keep from the old address */
 		memcpy(&new_contents[5], own_addr + 5, 3);
+
+		/*
+		 * What needs to get written to the original function is a call to the new function
+		 * and a ret.
+		 */
 
 		printf("new_contents with old: %p\n", *((void **)&new_contents));
 
